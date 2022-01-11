@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/Jamshid-Ismoilov/order-service/genproto"
+	pb "github.com/Jamshid-Ismoilov/order-service/genproto/order_service"
 	l "github.com/Jamshid-Ismoilov/order-service/pkg/logger"
 	"github.com/Jamshid-Ismoilov/order-service/storage"
 	"github.com/gofrs/uuid"

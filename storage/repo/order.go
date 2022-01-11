@@ -1,7 +1,7 @@
 package repo
 
 import (
-	pb "github.com/Jamshid-Ismoilov/order-service/genproto"
+	pb "github.com/Jamshid-Ismoilov/order-service/genproto/order_service"
 )
 
 // OrderStorageI ...

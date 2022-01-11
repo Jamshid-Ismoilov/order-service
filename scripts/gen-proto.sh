@@ -1,7 +1,7 @@
 #!/bin/bash
 CURRENT_DIR=$(pwd)
 
-for module in $(find $CURRENT_DIR/protos/* -type d); do
+for module in $(find $CURRENT_DIR/b-protos/* -type d); do
     protoc -I /usr/local/include \
            -I $GOPATH/src/github.com/gogo/protobuf/gogoproto \
            -I $CURRENT_DIR/b-protos/ \
@@ -10,7 +10,7 @@ for module in $(find $CURRENT_DIR/protos/* -type d); do
 done;
 
 for module in $(find $CURRENT_DIR/genproto/* -type d); do
-  if [[ "$OSTYPE" == "darwin"* ]]; then
+  if [[ "$OSTYPE" == "linux"* ]]; then
     sed -i "" -e "s/,omitempty//g" $module/*.go
   else
     sed -i -e "s/,omitempty//g" $module/*.go

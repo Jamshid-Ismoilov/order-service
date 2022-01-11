@@ -11,7 +11,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"github.com/jmoiron/sqlx"
 
-	pb "github.com/Jamshid-Ismoilov/order-service/genproto"
+	pb "github.com/Jamshid-Ismoilov/order-service/genproto/order_service"
+	pb2 "github.com/Jamshid-Ismoilov/order-service/genproto/catalog_service"
 )
 
 type orderRepo struct {
@@ -36,24 +37,24 @@ func (r *orderRepo) Create(order pb.Order) (pb.Book, error) {
 	if err != nil {
 		log.Fatalf("Did not connect %v", err)
 	}
-	client := pb.NewCatalogServiceClient(conn)
+	client := pb2.NewCatalogServiceClient(conn)
 	
-	input := pb.ByIdReq{
+	input := pb2.ByIdReq{
 		Id: order.BookId,
 	}
 
-
-	book, err := client.BookGet(context.Background(), &input)
+	res, err := client.BookGet(context.Background(), &input)
 	if err != nil {
 		log.Printf("failed to get user", err)
 	}
 
-
 	if err != nil {
 		return pb.Book{}, err
 	}
-
-	return *book, nil
+	var result pb.Book
+	book := *res
+	result.Id, result.Name, result.CreatedAt, result.UpdateAt = book.Id, book.Name, book.CreatedAt, book.UpdateAt
+	return result, nil
 }
 
 func (r *orderRepo) Get(id string) (pb.Order, error) {
