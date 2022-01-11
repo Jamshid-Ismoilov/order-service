@@ -42,10 +42,10 @@ func (r *orderRepo) Create(order pb.Order) (pb.Book, error) {
 		Id: order.BookId,
 	}
 
-	
-	book, err := client.Get(context.Background(), &input)
+
+	book, err := client.BookGet(context.Background(), &input)
 	if err != nil {
-		t.Error("failed to get user", err)
+		log.Printf("failed to get user", err)
 	}
 
 
@@ -53,7 +53,7 @@ func (r *orderRepo) Create(order pb.Order) (pb.Book, error) {
 		return pb.Book{}, err
 	}
 
-	return book, nil
+	return *book, nil
 }
 
 func (r *orderRepo) Get(id string) (pb.Order, error) {
