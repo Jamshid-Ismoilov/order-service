@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package catalog;
+
+service CatalogService {
+    rpc BookCreate(Book) returns (Book);
+    rpc BookGet(ByIdReq) returns (Book);
+    rpc BookList(ListReq) returns (BookListResp);
+    rpc BookUpdate(Book) returns (Book);
+    rpc BookDelete(ByIdReq) returns (EmptyRes);
+
+    rpc AuthorCreate(Author) returns (Author);
+    rpc AuthorGet(ByIdReq) returns (Author);
+    rpc AuthorList(ListReq) returns (AuthorListResp);
+    rpc AuthorUpdate(Author) returns (Author);
+    rpc AuthorDelete(ByIdReq) returns (EmptyRes);
+
+    rpc CategoryCreate(Category) returns (Category);
+    rpc CategoryGet(ByIdReq) returns (Category);
+    rpc CategoryList(ListReq) returns (CategoryListResp);
+    rpc CategoryUpdate(Category) returns (Category);
+    rpc CategoryDelete(ByIdReq) returns (EmptyRes);
+
+}
+
+message EmptyRes{}
+
+message Book {
+    string id = 1;
+    string name = 2;
+    Author author_id = 3;
+    string created_at = 4;
+    string update_at = 5;
+}
+
+message Category {
+    string id = 1;
+    string name = 2;
+    string parrent_id = 3;
+    string created_at = 4;
+    string update_at = 5;
+}
+
+message Author {
+    string id = 1;
+    string name = 2;
+}
+
+message BookListResp {
+    repeated Book books = 1;
+    int64 count = 2;
+}
+
+message AuthorListResp {
+    repeated Author authors = 1;
+    int64 count = 2;
+}
+
+message CategoryListResp {
+    repeated Category categories = 1;
+    int64 count = 2;
+}
+
+message ByIdReq {
+    string id = 1;
+}
+
+message ListReq {
+    int64 page = 1;
+    int64 limit = 2;
+}
+
