@@ -5,14 +5,14 @@ import (
 	"time"
 	"fmt"
 	"log"
-	"context"
+	// // "context"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	// // "google.golang.org/grpc"
+	// "google.golang.org/grpc/credentials/insecure"
 	"github.com/jmoiron/sqlx"
 
 	pb "github.com/Jamshid-Ismoilov/order-service/genproto/order_service"
-	pb2 "github.com/Jamshid-Ismoilov/order-service/genproto/catalog_service"
+	// pb2 "github.com/Jamshid-Ismoilov/order-service/genproto/catalog_service"
 )
 
 type orderRepo struct {
@@ -27,34 +27,34 @@ func NewOrderRepo(db *sqlx.DB) *orderRepo {
 func (r *orderRepo) Create(order pb.Order) (pb.Book, error) {
 	var id string
 	err := r.db.QueryRow(`
-        INSERT INTO orders(id, book_id, description, created_at)
-        VALUES ($1, $2, $3, $4) returning id`, order.Id, order.BookId, order.Description, order.CreatedAt).Scan(&id)
+        INSERT INTO orders(id, book_id, description)
+        VALUES ($1, $2, $3) returning id`, order.Id, order.BookId, order.Description).Scan(&id)
 	if err != nil {
 		return pb.Book{}, err
 	}
 
-	conn, err := grpc.Dial("localhost:9001", grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatalf("Did not connect %v", err)
-	}
-	client := pb2.NewCatalogServiceClient(conn)
+	// conn, err := grpc.Dial("localhost:9001", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// if err != nil {
+	// 	log.Fatalf("Did not connect %v", err)
+	// }
+	// client := pb2.NewCatalogServiceClient(conn)
 	
-	input := pb2.ByIdReq{
-		Id: order.BookId,
-	}
+	// input := pb2.ByIdReq{
+	// 	Id: order.BookId,
+	// }
 
-	res, err := client.BookGet(context.Background(), &input)
-	if err != nil {
-		log.Printf("failed to get user", err)
-	}
+	// res, err := client.BookGet(context.Background(), &input)
+	// if err != nil {
+	// 	log.Printf("failed to get user", err)
+	// }
 
-	if err != nil {
-		return pb.Book{}, err
-	}
-	var result pb.Book
-	book := *res
-	result.Id, result.Name, result.CreatedAt, result.UpdateAt = book.Id, book.Name, book.CreatedAt, book.UpdateAt
-	return result, nil
+	// if err != nil {
+	// 	return pb.Book{}, err
+	// }
+	// var result pb.Book
+	// book := *res
+	// result.Id, result.Name, result.CreatedAt, result.UpdateAt = book.Id, book.Name, book.CreatedAt, book.UpdateAt
+	return pb.Book{}, nil
 }
 
 func (r *orderRepo) Get(id string) (pb.Order, error) {
@@ -83,7 +83,7 @@ func (r *orderRepo) Get(id string) (pb.Order, error) {
 func (r *orderRepo) List(page, limit int64) ([]*pb.Order, int64, error) {
 	offset := (page - 1) * limit
 	rows, err := r.db.Queryx(
-		`SELECT id, book_id, description, created_at, updated_at FROM orders WHERE delete_at is null LIMIT $1 OFFSET $2`,
+		`SELECT id, book_id, description, created_at, updated_at FROM orders WHERE deleted_at is null LIMIT $1 OFFSET $2`,
 		limit, offset)
 	if err != nil {
 		return nil, 0, err
@@ -117,8 +117,9 @@ func (r *orderRepo) List(page, limit int64) ([]*pb.Order, int64, error) {
 }
 
 func (r *orderRepo) Update(order pb.Order) (pb.Order, error) {
-	result, err := r.db.Exec(`UPDATE orders SET book_id=$1, description=$2, updated_at=$4 WHERE id=$3`,
-		order.BookId, order.Description, order.Id, time.Now())
+	log.Println(order)
+	result, err := r.db.Exec(`UPDATE orders SET book_id=$1, description=$2, updated_at=current_timestamp WHERE id=$3`,
+		order.BookId, order.Description, order.Id)
 	if err != nil {
 		return pb.Order{}, err
 	}
@@ -134,6 +135,8 @@ func (r *orderRepo) Update(order pb.Order) (pb.Order, error) {
 
 	return order, nil
 }
+
+
 
 func (r *orderRepo) Delete(id string) error {
 	result, err := r.db.Exec(`UPDATE orders SET deleted_at = $2 WHERE id=$1`, id, time.Now())
